@@ -1,0 +1,116 @@
+<!-- 這隻程式是做錯的! 最後時間不夠，沒有把正確的接到前段 -->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Hotel Search</title>
+</head>
+
+<body>
+    <h1>Hotel Search</h1>
+    <label for="searchQuery">Search Query:</label>
+    <input type="text" id="searchQuery"><br>
+    <button onclick="searchHotels()">Search Hotels</button>
+    <button onclick="showAllHotels()">Show All Hotels</button>
+
+    <div id="searchResults">
+        <h2>Search Results:</h2>
+        <ul id="hotelList"></ul>
+    </div>
+
+    <script>
+        const apiKey = "apikey";
+        const searchEndpoint = "https://lab3-llm-application.search.windows.net/indexes/hotels-sample-index/docs/search?api-version=2023-10-01-Preview";
+        const headers = {
+            'Content-Type': 'application/json',
+            'api-key': apiKey
+        }
+
+        async function searchHotels() {
+            const searchQuery = document.getElementById('searchQuery').value;
+            if (!searchQuery) {
+                // console.log("Show all")
+                showAllHotels()
+                return;
+            }
+            console.log(`Search for ${searchQuery}`)
+            const requestData = {
+                "count": true,
+                "select": "HotelId, HotelName, Description, Category",
+                "search": searchQuery
+            };
+
+            try {
+                const response = await fetch(searchEndpoint, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(requestData)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    // console.log(data)
+                    // console.log(data.value)
+                    // console.log(data.value[0])
+                    const hotels = data.value;
+
+                    const hotelList = document.getElementById('hotelList');
+                    hotelList.innerHTML = '';
+
+                    hotels.forEach(hotel => {
+                        // console.log(hotel)
+                        const listItem = document.createElement('li');
+                        listItem.textContent = `Hotel ID: ${hotel.HotelId}, Hotel Name: ${hotel.HotelName}, Description: ${hotel.Description}, Category: ${hotel.Category}`;
+                        hotelList.appendChild(listItem);
+                    });
+                } else {
+                    alert('Failed to fetch search results.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            }
+        }
+        async function showAllHotels() {
+            console.log("Show all")
+            const requestData = {
+                "count": true,
+                "select": "HotelId, HotelName, Description, Category"
+            };
+
+            try {
+                const response = await fetch(searchEndpoint, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(requestData)
+                });
+
+                if (response.ok) {
+                    // console.log(data)
+                    // console.log(data.value)
+                    // console.log(data.value[0])
+                    const data = await response.json();
+                    const hotels = data.value;
+
+                    const hotelList = document.getElementById('hotelList');
+                    hotelList.innerHTML = '';
+
+                    hotels.forEach(hotel => {
+                        // console.log(hotel)
+                        const listItem = document.createElement('li');
+                        listItem.textContent = `Hotel ID: ${hotel.HotelId}, Hotel Name: ${hotel.HotelName}, Description: ${hotel.Description}, Category: ${hotel.Category}`;
+                        hotelList.appendChild(listItem);
+                    });
+                } else {
+                    alert('Failed to fetch search results.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            }
+        }
+    </script>
+
+</body>
+
+</html>
